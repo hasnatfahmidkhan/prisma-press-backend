@@ -5,10 +5,10 @@ model User {
     password     String
     activeStatus ActiveStatus @default(ACTIVE)
     role         Role         @default(USER)
-    created_at   DateTime     @default(now())
-    udpated_at   DateTime     @updatedAt
+    createdAt   DateTime     @default(now())
+    udpatedAt   DateTime     @updatedAt
 
-    profileId Profile?
+    profile Profile?
 
     @@map("users")
 }
