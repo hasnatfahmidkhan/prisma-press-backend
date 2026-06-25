@@ -3,10 +3,8 @@ import express from "express";
 import cors from "cors";
 import config from "./config";
 import cookieParser from "cookie-parser";
-import httpStatus from "http-status";
-import { prisma } from "./lib/prisma";
-import bcrypt from "bcryptjs";
 import { userRouter } from "./modules/user/user.route";
+import { authRoutes } from "./modules/auth/auth.route";
 
 const app: Application = express();
 
@@ -26,6 +24,10 @@ app.get("/", (req: Request, res: Response) => {
   res.send("Hello World!");
 });
 
+// users api
 app.use("/api/users", userRouter);
+
+// auth api
+app.use("/api/auth", authRoutes);
 
 export default app;
