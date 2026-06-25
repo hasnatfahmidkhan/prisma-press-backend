@@ -1,6 +1,9 @@
 import bcrypt from "bcryptjs";
 import { prisma } from "../../lib/prisma";
 import type { ILoginPayload } from "./auth.interface";
+import { jwtUtils } from "../../utils/jwt";
+import config from "../../config";
+import type { SignOptions } from "jsonwebtoken";
 
 const loginUser = async (payload: ILoginPayload) => {
   const { email, password } = payload;
@@ -25,7 +28,26 @@ const loginUser = async (payload: ILoginPayload) => {
     throw new Error("Incorrect Password");
   }
 
-  return user;
+  const jwtPayload = {
+    id: user.id,
+    email: user.email,
+    role: user.role,
+    name: user.name,
+  };
+
+  const accessToken = jwtUtils.createJWTToken(
+    jwtPayload,
+    config.jwt_access_secret,
+    config.jwt_access_expires_in as SignOptions,
+  );
+
+  const refreshToken = jwtUtils.createJWTToken(
+    jwtPayload,
+    config.jwt_refresh_secret,
+    config.jwt_refresh_expires_in as SignOptions,
+  );
+
+  return { accessToken, refreshToken };
 };
 
 export const authService = {
