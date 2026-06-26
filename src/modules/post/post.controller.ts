@@ -1,15 +1,35 @@
+import httpStatus from "http-status";
+import { postService } from "./post.service";
 import type { NextFunction } from "express";
 import type { Req, Res } from "../../types";
 import { catchAsync } from "../../utils/catchAsync";
+import { sendResponse } from "../../utils/sendResponse";
 
 class PostController {
   // create post
-  createPost = catchAsync(async (req: Req, res: Res, next: NextFunction) => {});
+  createPost = catchAsync(async (req: Req, res: Res, next: NextFunction) => {
+    const id = req.user?.id as string;
+    const payload = req.body;
+    const post = await postService.insertPostIntoDB(payload, id);
+
+    sendResponse(res, {
+      succces: true,
+      statusCode: httpStatus.CREATED,
+      message: "post created successfully",
+      data: post,
+    });
+  });
 
   // get all posts
-  getAllPosts = catchAsync(
-    async (req: Req, res: Res, next: NextFunction) => {},
-  );
+  getAllPosts = catchAsync(async (req: Req, res: Res, next: NextFunction) => {
+    const posts = await postService.getPostsFromDB();
+    sendResponse(res, {
+      succces: true,
+      statusCode: httpStatus.OK,
+      message: "get posts successfully",
+      data: posts,
+    });
+  });
 
   // my posts
   myPost = catchAsync(async (req: Req, res: Res, next: NextFunction) => {});

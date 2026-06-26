@@ -5,7 +5,7 @@ model Post {
     thumbnail  String?    @db.Text
     isFeatured Boolean    @default(false)
     status     PostStatus @default(PUBLISHED)
-    tages      String[]
+    tags       String[]
     views      Int        @default(0)
 
     authorId String
