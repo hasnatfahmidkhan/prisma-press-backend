@@ -45,7 +45,16 @@ class PostController {
   });
 
   // single post
-  singlePost = catchAsync(async (req: Req, res: Res, next: NextFunction) => {});
+  singlePost = catchAsync(async (req: Req, res: Res, next: NextFunction) => {
+    const postId = req.params.postId as string;
+    const post = await postService.getSignlePost(postId);
+    sendResponse(res, {
+      succces: true,
+      statusCode: httpStatus.OK,
+      message: "get signle post successfully",
+      data: post,
+    });
+  });
 
   // update post
   updatePost = catchAsync(async (req: Req, res: Res, next: NextFunction) => {});

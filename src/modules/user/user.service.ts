@@ -48,7 +48,7 @@ const createUser = async (payload: IUser) => {
     omit: {
       password: true,
       createdAt: true,
-      udpatedAt: true,
+      updatedAt: true,
     },
     include: {
       profile: {
@@ -70,7 +70,7 @@ const getUserProfileFromDB = async (userId: string) => {
     omit: {
       password: true,
       createdAt: true,
-      udpatedAt: true,
+      updatedAt: true,
     },
     include: {
       profile: true,

@@ -18,7 +18,7 @@ const loginUser = async (payload: ILoginPayload) => {
     },
     omit: {
       createdAt: true,
-      udpatedAt: true,
+      updatedAt: true,
     },
   });
 

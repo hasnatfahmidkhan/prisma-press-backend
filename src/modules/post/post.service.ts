@@ -51,7 +51,17 @@ class PostService {
     });
   };
 
-  getSignlePost = async () => {};
+  getSignlePost = async (postId: string) => {
+    const post = await prisma.post.findUniqueOrThrow({
+      where: {
+        id: postId,
+      },
+      include: {
+        commments: true,
+      },
+    });
+    return post;
+  };
 
   updatePostIntoDB = async () => {};
 
