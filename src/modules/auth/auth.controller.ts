@@ -5,25 +5,15 @@ import { catchAsync } from "../../utils/catchAsync";
 import { authService } from "./auth.service";
 import { sendResponse } from "../../utils/sendResponse";
 import type { ILoginPayload } from "./auth.interface";
+import { setAuthCookies } from "../../utils/setAuthCookie";
 
 const loginUser = catchAsync(async (req: Req, res: Res, next: NextFunction) => {
   const payload = req.body as ILoginPayload;
 
   const { accessToken, refreshToken } = await authService.loginUser(payload);
 
-  res.cookie("accessToken", accessToken, {
-    httpOnly: true,
-    sameSite: "none",
-    secure: false,
-    maxAge: 1000 * 60 * 60 * 24 * 1, // 1 day
-  });
-
-  res.cookie("refreshToken", refreshToken, {
-    httpOnly: true,
-    sameSite: "none",
-    secure: false,
-    maxAge: 1000 * 60 * 60 * 24 * 7, // 7 day
-  });
+  setAuthCookies(res, "accessToken", accessToken);
+  setAuthCookies(res, "refreshToken", refreshToken);
 
   sendResponse(res, {
     succces: true,
@@ -33,6 +23,25 @@ const loginUser = catchAsync(async (req: Req, res: Res, next: NextFunction) => {
   });
 });
 
+// refreshToken
+const refreshToken = catchAsync(
+  async (req: Req, res: Res, next: NextFunction) => {
+    const { refreshToken } = req.cookies;
+    const result = await authService.refreshToken(refreshToken);
+
+    setAuthCookies(res, "accessToken", result.accessToken);
+    setAuthCookies(res, "refreshToken", result.refreshToken);
+
+    sendResponse(res, {
+      succces: true,
+      statusCode: httpStatus.OK,
+      message: "Access token created successfully",
+      data: result,
+    });
+  },
+);
+
 export const authController = {
   loginUser,
+  refreshToken,
 };
