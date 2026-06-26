@@ -13,4 +13,10 @@ router.get(
   userController.getUserProfile,
 );
 
+router.put(
+  "/my-profile",
+  auth(Role.ADMIN, Role.USER, Role.AUTHOR),
+  userController.updateProfile,
+);
+
 export const userRouter = router;
