@@ -5,6 +5,8 @@ import config from "./config";
 import cookieParser from "cookie-parser";
 import { userRouter } from "./modules/user/user.route";
 import { authRoutes } from "./modules/auth/auth.route";
+import { postRoutes } from "./modules/post/post.route";
+import { commentRoutes } from "./modules/comment/comment.route";
 
 const app: Application = express();
 
@@ -29,5 +31,11 @@ app.use("/api/users", userRouter);
 
 // auth api
 app.use("/api/auth", authRoutes);
+
+// post api
+app.use("/api/posts", postRoutes);
+
+// comment api
+app.use("/api/comments", commentRoutes);
 
 export default app;
