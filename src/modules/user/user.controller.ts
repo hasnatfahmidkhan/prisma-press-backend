@@ -5,6 +5,8 @@ import type { IUser } from "./user.interface";
 import { catchAsync } from "../../utils/catchAsync";
 import { sendResponse } from "../../utils/sendResponse";
 import type { NextFunction } from "express";
+import { jwtUtils } from "../../utils/jwt";
+import config from "../../config";
 
 // register User
 const registerUser = catchAsync(
@@ -30,6 +32,32 @@ const registerUser = catchAsync(
   },
 );
 
+// getUserProfile
+const getUserProfile = catchAsync(
+  async (req: Req, res: Res, next: NextFunction) => {
+    const { accessToken } = req.cookies;
+
+    const verifiedToken = jwtUtils.verifyJWTToken(
+      accessToken,
+      config.jwt_access_secret,
+    );
+
+    if (typeof verifiedToken === "string") {
+      throw new Error(verifiedToken);
+    }
+
+    const user = await userService.getUserProfileFromDB(verifiedToken.id);
+
+    sendResponse(res, {
+      succces: true,
+      statusCode: httpStatus.OK,
+      message: "fetch user profile successfully!",
+      data: user,
+    });
+  },
+);
+
 export const userController = {
   registerUser,
+  getUserProfile,
 };
