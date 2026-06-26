@@ -20,15 +20,36 @@ class PostService {
           omit: {
             password: true,
             createdAt: true,
-            udpatedAt: true,
+            updatedAt: true,
           },
         },
+      },
+      orderBy: {
+        createdAt: "desc",
       },
     });
     return posts;
   };
 
-  getMyPost = async () => {};
+  getMyPosts = async (userId: string) => {
+    return prisma.post.findMany({
+      where: {
+        authorId: userId,
+      },
+      include: {
+        author: {
+          omit: {
+            password: true,
+            createdAt: true,
+            updatedAt: true,
+          },
+        },
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+  };
 
   getSignlePost = async () => {};
 

@@ -32,7 +32,17 @@ class PostController {
   });
 
   // my posts
-  myPost = catchAsync(async (req: Req, res: Res, next: NextFunction) => {});
+  myPosts = catchAsync(async (req: Req, res: Res, next: NextFunction) => {
+    const id = req.user?.id as string;
+    console.log(id, "ID");
+    const posts = await postService.getMyPosts(id);
+    sendResponse(res, {
+      succces: true,
+      statusCode: httpStatus.OK,
+      message: "Get all my posts successfully",
+      data: posts,
+    });
+  });
 
   // single post
   singlePost = catchAsync(async (req: Req, res: Res, next: NextFunction) => {});

@@ -6,7 +6,7 @@ model User {
     activeStatus ActiveStatus @default(ACTIVE)
     role         Role         @default(USER)
     createdAt    DateTime     @default(now())
-    udpatedAt    DateTime     @updatedAt
+    updatedAt    DateTime     @updatedAt
 
     profile Profile?
 
