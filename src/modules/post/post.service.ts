@@ -32,7 +32,7 @@ class PostService {
   };
 
   getMyPosts = async (userId: string) => {
-    return prisma.post.findMany({
+    const posts = await prisma.post.findMany({
       where: {
         authorId: userId,
       },
@@ -44,11 +44,18 @@ class PostService {
             updatedAt: true,
           },
         },
-      },
-      orderBy: {
-        createdAt: "desc",
+        _count: {
+          select: {
+            commments: true,
+          },
+        },
       },
     });
+
+    return posts.map(({ _count, ...post }) => ({
+      ...post,
+      totalComments: _count.commments,
+    }));
   };
 
   getSignlePost = async (postId: string) => {
