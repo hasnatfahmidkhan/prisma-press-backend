@@ -10,11 +10,11 @@ router.get("/", postController.getAllPosts);
 
 router.get("/stats", auth(Role.ADMIN), postController.postStats);
 
-router.get(
-  "/my-posts",
-  auth(Role.USER, Role.AUTHOR, Role.ADMIN),
-  postController.myPosts,
-);
+  router.get(
+    "/my-posts",
+    auth(Role.USER, Role.AUTHOR, Role.ADMIN),
+    postController.myPosts,
+  );
 router.get("/:postId", postController.singlePost);
 
 // Authenticated

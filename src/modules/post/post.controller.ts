@@ -57,10 +57,39 @@ class PostController {
   });
 
   // update post
-  updatePost = catchAsync(async (req: Req, res: Res, next: NextFunction) => {});
+  updatePost = catchAsync(async (req: Req, res: Res, next: NextFunction) => {
+    const postId = req.params.postId as string;
+    const authorId = req.user?.id as string;
+    const isAdmin = req.user?.role === "ADMIN";
+    const payload = req.body;
+    const updatedPost = await postService.updatePostIntoDB(
+      postId,
+      payload,
+      authorId,
+      isAdmin,
+    );
+    sendResponse(res, {
+      succces: true,
+      statusCode: httpStatus.OK,
+      message: "post updated successfully",
+      data: updatedPost,
+    });
+  });
 
   // delete post
-  deletePost = catchAsync(async (req: Req, res: Res, next: NextFunction) => {});
+  deletePost = catchAsync(async (req: Req, res: Res, next: NextFunction) => {
+    const postId = req.params.postId as string;
+    const authorId = req.user?.id as string;
+    const isAdmin = req.user?.role === "ADMIN";
+
+    await postService.deletePostFromDB(postId, authorId, isAdmin);
+    sendResponse(res, {
+      succces: true,
+      statusCode: httpStatus.OK,
+      message: "post deleted successfully",
+      data: null,
+    });
+  });
 
   // post stats
   postStats = catchAsync(async (req: Req, res: Res, next: NextFunction) => {});
