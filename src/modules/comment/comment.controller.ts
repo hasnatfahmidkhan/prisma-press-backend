@@ -7,7 +7,16 @@ import { sendResponse } from "../../utils/sendResponse";
 
 class CommentController {
   getCommentsByAuthor = catchAsync(
-    async (req: Req, res: Res, next: NextFunction) => {},
+    async (req: Req, res: Res, next: NextFunction) => {
+      const authorId = req.params.authorId as string;
+      const comments = await commentService.getCommentsByAuthor(authorId);
+      sendResponse(res, {
+        succces: true,
+        statusCode: httpStatus.CREATED,
+        message: "Comments retrieved successfully!",
+        data: comments,
+      });
+    },
   );
 
   getCommentById = catchAsync(

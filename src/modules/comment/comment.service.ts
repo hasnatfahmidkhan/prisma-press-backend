@@ -2,7 +2,20 @@ import { prisma } from "../../lib/prisma";
 import type { ICreateCommentPayload } from "./comment.interface";
 
 class CommentService {
-  getCommentsByAuthor = async () => {};
+  getCommentsByAuthor = async (authorId: string) => {
+    const comments = await prisma.comment.findMany({
+      where: {
+        authorId: authorId,
+      },
+      include: {
+        post: true,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+    return comments;
+  };
 
   getCommentById = async () => {};
 
