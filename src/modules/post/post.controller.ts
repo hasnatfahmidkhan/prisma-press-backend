@@ -22,12 +22,15 @@ class PostController {
 
   // get all posts
   getAllPosts = catchAsync(async (req: Req, res: Res, next: NextFunction) => {
-    const posts = await postService.getPostsFromDB();
+    const page = Number(req.query?.page || 1);
+    const limit = Number(req.query?.limit || 4);
+    const posts = await postService.getPostsFromDB(page, limit);
     sendResponse(res, {
       succces: true,
       statusCode: httpStatus.OK,
       message: "get posts successfully",
-      data: posts,
+      data: posts.posts,
+      pagination: { total: posts.total },
     });
   });
 

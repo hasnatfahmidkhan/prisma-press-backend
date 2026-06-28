@@ -1,3 +1,4 @@
+import { CommentStatus } from "../../../generated/prisma/enums";
 import { prisma } from "../../lib/prisma";
 import type { ICreatePostPayload, IPostUpdate } from "./post.interface";
 
@@ -13,7 +14,8 @@ class PostService {
     return post;
   };
 
-  getPostsFromDB = async () => {
+  getPostsFromDB = async (page: number = 1, take: number = 4) => {
+    const total = await prisma.post.count();
     const posts = await prisma.post.findMany({
       include: {
         author: {
@@ -27,8 +29,10 @@ class PostService {
       orderBy: {
         createdAt: "desc",
       },
+      take: take,
+      skip: page - 1 * take,
     });
-    return posts;
+    return { posts, total };
   };
 
   getMyPosts = async (userId: string) => {
@@ -59,25 +63,76 @@ class PostService {
   };
 
   getSignlePost = async (postId: string) => {
-    await prisma.post.findUniqueOrThrow({
-      where: {
-        id: postId,
-      },
-      include: {
-        commments: true,
-      },
-    });
-    const updatedPost = await prisma.post.update({
-      where: {
-        id: postId,
-      },
-      data: {
-        views: {
-          increment: 1,
+    // await prisma.post.update({
+    //   where: {
+    //     id: postId,
+    //   },
+    //   data: {
+    //     views: {
+    //       increment: 1,
+    //     },
+    //   },
+    // });
+    // const post = await prisma.post.findUniqueOrThrow({
+    //   where: {
+    //     id: postId,
+    //   },
+    //   include: {
+    //     commments: {
+    //       where: {
+    //         // status: "APPROVED",
+    //         status: CommentStatus.APPROVED,
+    //       },
+    //       orderBy: {
+    //         createdAt: "desc",
+    //       },
+    //     },
+    //     _count: {
+    //       select: {
+    //         commments: true,
+    //       },
+    //     },
+    //   },
+    // });
+    // const { _count, ...postData } = post;
+    // return { ...postData, totalComments: _count.commments };
+
+    const transactionResult = await prisma.$transaction(async (tx) => {
+      await tx.post.update({
+        where: {
+          id: postId,
         },
-      },
+        data: {
+          views: {
+            increment: 1,
+          },
+        },
+      });
+      const post = await tx.post.findFirstOrThrow({
+        where: {
+          id: postId,
+        },
+        include: {
+          commments: {
+            where: {
+              // status: "APPROVED",
+              status: CommentStatus.APPROVED,
+            },
+            orderBy: {
+              createdAt: "desc",
+            },
+          },
+          _count: {
+            select: {
+              commments: true,
+            },
+          },
+        },
+      });
+      const { _count, ...postData } = post;
+      return { ...postData, totalComments: _count.commments };
     });
-    return updatedPost;
+    return transactionResult;
   };
 
   updatePostIntoDB = async (
