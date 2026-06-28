@@ -19,7 +19,7 @@ router.post(
 
 router.patch(
   "/:commentId",
-  auth(Role.ADMIN, Role.AUTHOR, Role.USER),
+  auth(Role.AUTHOR, Role.USER),
   commentController.updateComment,
 );
 

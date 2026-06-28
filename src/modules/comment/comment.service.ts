@@ -1,3 +1,4 @@
+import { CommentStatus } from "../../../generated/prisma/enums";
 import { prisma } from "../../lib/prisma";
 import type { ICreateCommentPayload } from "./comment.interface";
 
@@ -6,6 +7,7 @@ class CommentService {
     const comments = await prisma.comment.findMany({
       where: {
         authorId: authorId,
+        status: "APPROVED",
       },
       omit: {
         createdAt: true,
@@ -76,11 +78,89 @@ class CommentService {
     return comment;
   };
 
-  updateComment = async () => {};
+  updateComment = async (
+    commentId: string,
+    content: { content: string },
+    authorId: string,
+  ) => {
+    if (!commentId || !content) {
+      throw new Error("Comment id & content must be required!");
+    }
 
-  deleteComment = async () => {};
+    const comment = await prisma.comment.findUniqueOrThrow({
+      where: {
+        id: commentId,
+      },
+    });
 
-  moderateComment = async () => {};
+    if (comment.authorId !== authorId) {
+      throw new Error("You are not the owner of this post.");
+    }
+
+    const updatedComment = await prisma.comment.update({
+      where: {
+        id: commentId,
+      },
+      data: content,
+    });
+    return updatedComment;
+  };
+
+  deleteComment = async (commentId: string, authorId: string) => {
+    if (!commentId) {
+      throw new Error("Comment id must be required!");
+    }
+
+    const comment = await prisma.comment.findUniqueOrThrow({
+      where: {
+        id: commentId,
+      },
+    });
+
+    if (comment.authorId !== authorId) {
+      throw new Error("You are not the owner of this post.");
+    }
+
+    await prisma.comment.delete({
+      where: {
+        id: commentId,
+      },
+    });
+    return null;
+  };
+
+  moderateComment = async (
+    commentId: string,
+    status: string,
+    isAdmin: boolean,
+  ) => {
+    if (!isAdmin) {
+      throw new Error("You have not permission for this action.");
+    }
+
+    if (!commentId || !status) {
+      throw new Error("Comment id & status must be required!");
+    }
+
+    if (
+      !(status === CommentStatus.REJECTED) &&
+      !(status === CommentStatus.APPROVED)
+    ) {
+      throw new Error(
+        "Invalid status! Status must be either APPROVED or REJECTED.",
+      );
+    }
+
+    const moderatedComment = await prisma.comment.update({
+      where: {
+        id: commentId,
+      },
+      data: {
+        status: status === "REJECTED" ? "REJECTED" : "APPROVED",
+      },
+    });
+    return moderatedComment;
+  };
 }
 
 export const commentService = new CommentService();

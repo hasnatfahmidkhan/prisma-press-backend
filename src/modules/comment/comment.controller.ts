@@ -44,16 +44,53 @@ class CommentController {
     });
   });
 
-  updateComment = catchAsync(
-    async (req: Req, res: Res, next: NextFunction) => {},
-  );
+  updateComment = catchAsync(async (req: Req, res: Res, next: NextFunction) => {
+    const commentId = req.params.commentId as string;
+    const content = req.body;
+    const authorId = req.user?.id as string;
+    const updatedComment = await commentService.updateComment(
+      commentId,
+      content,
+      authorId,
+    );
+    sendResponse(res, {
+      succces: true,
+      statusCode: httpStatus.OK,
+      message: "Comment updated successfully!",
+      data: updatedComment,
+    });
+  });
 
-  deleteComment = catchAsync(
-    async (req: Req, res: Res, next: NextFunction) => {},
-  );
+  deleteComment = catchAsync(async (req: Req, res: Res, next: NextFunction) => {
+    const commentId = req.params.commentId as string;
+
+    const authorId = req.user?.id as string;
+    await commentService.deleteComment(commentId, authorId);
+    sendResponse(res, {
+      succces: true,
+      statusCode: httpStatus.OK,
+      message: "Comment deleted successfully!",
+      data: null,
+    });
+  });
 
   moderateComment = catchAsync(
-    async (req: Req, res: Res, next: NextFunction) => {},
+    async (req: Req, res: Res, next: NextFunction) => {
+      const commentId = req.params.commentId as string;
+      const status = req.body.status;
+      const isAdmin = req.user?.role === "ADMIN";
+      const moderatedComment = await commentService.moderateComment(
+        commentId,
+        status,
+        isAdmin,
+      );
+      sendResponse(res, {
+        succces: true,
+        statusCode: httpStatus.OK,
+        message: "comment status changed successfully",
+        data: moderatedComment,
+      });
+    },
   );
 }
 
