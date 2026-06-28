@@ -95,7 +95,15 @@ class PostController {
   });
 
   // post stats
-  postStats = catchAsync(async (req: Req, res: Res, next: NextFunction) => {});
+  postStats = catchAsync(async (req: Req, res: Res, next: NextFunction) => {
+    const stats = await postService.postStatsFromDb();
+    sendResponse(res, {
+      succces: true,
+      statusCode: httpStatus.OK,
+      message: "get posts successfully",
+      data: stats,
+    });
+  });
 }
 
 export const postController = new PostController();

@@ -26,11 +26,11 @@ class PostService {
           },
         },
       },
+      take: take,
+      skip: (page - 1) * take,
       orderBy: {
         createdAt: "desc",
       },
-      take: take,
-      skip: page - 1 * take,
     });
     return { posts, total };
   };
@@ -129,8 +129,7 @@ class PostService {
           },
         },
       });
-      const { _count, ...postData } = post;
-      return { ...postData, totalComments: _count.commments };
+      return post;
     });
     return transactionResult;
   };
@@ -190,7 +189,85 @@ class PostService {
     return null;
   };
 
-  postStatsFromDb = async () => {};
+  postStatsFromDb = async () => {
+    const statsTransaction = await prisma.$transaction(async (tx) => {
+      const [
+        totalPosts,
+        publishedPosts,
+        draftPosts,
+        archivedposts,
+        totalComments,
+        approveComments,
+        totalUsers,
+        adminUsers,
+        regularUsers,
+        viewStats,
+      ] = await Promise.all([
+        await tx.post.count(),
+        await tx.post.count({
+          where: {
+            status: "PUBLISHED",
+          },
+        }),
+        await tx.post.count({
+          where: {
+            status: "DRAFT",
+          },
+        }),
+        await tx.post.count({
+          where: {
+            status: "ARCHIVED",
+          },
+        }),
+        await tx.comment.count(),
+        await tx.comment.count({
+          where: {
+            status: "APPROVED",
+          },
+        }),
+        await tx.user.count(),
+        await tx.user.count({
+          where: {
+            role: "ADMIN",
+          },
+        }),
+        await tx.user.count({
+          where: {
+            role: {
+              in: ["USER", "AUTHOR"],
+            },
+          },
+        }),
+        await tx.post.aggregate({
+          _sum: {
+            views: true,
+          },
+          _max: {
+            views: true,
+          },
+          _min: {
+            views: true,
+          },
+          _avg: {
+            views: true,
+          },
+        }),
+      ]);
+      return {
+        totalPosts,
+        publishedPosts,
+        draftPosts,
+        archivedposts,
+        totalComments,
+        approveComments,
+        totalUsers,
+        adminUsers,
+        regularUsers,
+        viewStats,
+      };
+    });
+    return statsTransaction;
+  };
 }
 
 export const postService = new PostService();
