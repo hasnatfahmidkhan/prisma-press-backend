@@ -12,7 +12,7 @@ class CommentController {
       const comments = await commentService.getCommentsByAuthor(authorId);
       sendResponse(res, {
         succces: true,
-        statusCode: httpStatus.CREATED,
+        statusCode: httpStatus.OK,
         message: "Comments retrieved successfully!",
         data: comments,
       });
@@ -20,7 +20,16 @@ class CommentController {
   );
 
   getCommentById = catchAsync(
-    async (req: Req, res: Res, next: NextFunction) => {},
+    async (req: Req, res: Res, next: NextFunction) => {
+      const commentId = req.params.commentId as string;
+      const comment = await commentService.getCommentById(commentId);
+      sendResponse(res, {
+        succces: true,
+        statusCode: httpStatus.OK,
+        message: "Comment retrieved successfully!",
+        data: comment,
+      });
+    },
   );
 
   createComment = catchAsync(async (req: Req, res: Res, next: NextFunction) => {
