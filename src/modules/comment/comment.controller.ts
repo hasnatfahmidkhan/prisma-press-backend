@@ -78,11 +78,9 @@ class CommentController {
     async (req: Req, res: Res, next: NextFunction) => {
       const commentId = req.params.commentId as string;
       const status = req.body.status;
-      const isAdmin = req.user?.role === "ADMIN";
       const moderatedComment = await commentService.moderateComment(
         commentId,
         status,
-        isAdmin,
       );
       sendResponse(res, {
         succces: true,

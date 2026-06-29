@@ -21,18 +21,17 @@ class PostController {
   });
 
   // get all posts
-  getAllPosts = catchAsync(async (req: Req, res: Res, next: NextFunction) => {
-    const page = Number(req.query?.page || 1);
-    const limit = Number(req.query?.limit || 4);
-    const posts = await postService.getPostsFromDB(page, limit);
-    sendResponse(res, {
-      succces: true,
-      statusCode: httpStatus.OK,
-      message: "get posts successfully",
-      data: posts.posts,
-      pagination: { total: posts.total },
-    });
+  getAllPosts = catchAsync(async (req: Req, res: Res) => {
+  const result = await postService.getPostsFromDB(req.query);
+
+  sendResponse(res, {
+    succces: true,
+    statusCode: httpStatus.OK,
+    message: "Posts retrieved successfully",
+    data: result.posts,
+    pagination: result.pagination,
   });
+});
 
   // my posts
   myPosts = catchAsync(async (req: Req, res: Res, next: NextFunction) => {

@@ -132,12 +132,7 @@ class CommentService {
   moderateComment = async (
     commentId: string,
     status: string,
-    isAdmin: boolean,
   ) => {
-    if (!isAdmin) {
-      throw new Error("You have not permission for this action.");
-    }
-
     if (!commentId || !status) {
       throw new Error("Comment id & status must be required!");
     }
