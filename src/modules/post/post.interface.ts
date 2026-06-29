@@ -27,7 +27,7 @@ export interface IGetPostsQuery {
   authorId?: string;
   status?: PostStatus;
   isFeatured?: string;
-  tag?: string;
+  tags?: string[];
 
   // Range Filters
   minViews?: string;

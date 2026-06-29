@@ -19,143 +19,6 @@ class PostService {
     return post;
   };
 
-  // getPostsFromDB = async (query: Record<string, any>) => {
-  //   const {
-  //     page = "1",
-  //     limit = "4",
-  //     searchTerm,
-  //     status,
-  //     isFeatured,
-  //     tag,
-  //     minViews,
-  //     maxViews,
-  //     fromDate,
-  //     toDate,
-  //     sortBy = "createdAt",
-  //     sortOrder = "desc",
-  //   } = query;
-
-  //   const pageNumber = Number(page);
-  //   const take = Number(limit);
-
-  //   const where: PostWhereInput = {};
-
-  //   /**
-  //    * Search
-  //    */
-  //   if (searchTerm) {
-  //     where.OR = [
-  //       {
-  //         title: {
-  //           contains: searchTerm,
-  //           mode: "insensitive",
-  //         },
-  //       },
-  //       {
-  //         content: {
-  //           contains: searchTerm,
-  //           mode: "insensitive",
-  //         },
-  //       },
-  //     ];
-  //   }
-
-  //   /**
-  //    * Status
-  //    */
-  //   if (status) {
-  //     where.status = status as PostStatus;
-  //   }
-
-  //   /**
-  //    * Featured
-  //    */
-  //   if (isFeatured !== undefined) {
-  //     where.isFeatured = isFeatured === "true";
-  //   }
-
-  //   /**
-  //    * Tags
-  //    */
-  //   if (tag) {
-  //     where.tags = {
-  //       has: tag,
-  //     };
-  //   }
-
-  //   /**
-  //    * Views Range
-  //    */
-  //   if (minViews || maxViews) {
-  //     where.views = {
-  //       // if miniView exist then gte active and spread the obj
-  //       ...(minViews && {
-  //         gte: Number(minViews),
-  //       }),
-  //       // if miniView exist then gte active and spread the obj
-  //       ...(maxViews && {
-  //         lte: Number(maxViews),
-  //       }),
-  //     };
-  //   }
-
-  //   /**
-  //    * Date Range
-  //    */
-  //   if (fromDate || toDate) {
-  //     where.createdAt = {
-  //       ...(fromDate && {
-  //         gte: new Date(fromDate),
-  //       }),
-  //       ...(toDate && {
-  //         lte: new Date(toDate),
-  //       }),
-  //     };
-  //   }
-
-  //   /**
-  //    * Count
-  //    */
-  //   const total = await prisma.post.count({
-  //     where,
-  //   });
-
-  //   /**
-  //    * Data
-  //    */
-  //   const posts = await prisma.post.findMany({
-  //     where,
-
-  //     include: {
-  //       author: {
-  //         omit: {
-  //           password: true,
-  //           createdAt: true,
-  //           updatedAt: true,
-  //         },
-  //       },
-  //     },
-
-  //     skip: (pageNumber - 1) * take,
-
-  //     take,
-
-  //     orderBy: {
-  //       [sortBy]: sortOrder,
-  //     },
-  //   });
-
-  //   return {
-  //     posts,
-  //     pagination: {
-  //       page: pageNumber,
-  //       limit: take,
-  //       total,
-  //       totalPage: Math.ceil(total / take),
-  //     },
-  //   };
-  // };
-
   getPostsFromDB = async (query: IGetPostsQuery) => {
     const {
       page = "1",
@@ -164,7 +27,7 @@ class PostService {
       authorId,
       status,
       isFeatured,
-      tag,
+      tags,
       maxViews,
       minViews,
       fromDate,
@@ -228,9 +91,10 @@ class PostService {
     }
 
     // Tags
-    if (tag) {
+    if (tags) {
+      const parsedTags = typeof tags === "string" ? JSON.parse(tags) : tags;
       where.tags = {
-        has: tag,
+        hasSome: parsedTags,
       };
     }
 
@@ -257,29 +121,6 @@ class PostService {
         }),
       };
     }
-
-    // count total posts
-    // const total = await prisma.post.count({
-    //   where,
-    // });
-
-    // const posts = await prisma.post.findMany({
-    //   where,
-    //   include: {
-    //     author: {
-    //       omit: {
-    //         password: true,
-    //         createdAt: true,
-    //         updatedAt: true,
-    //       },
-    //     },
-    //   },
-    //   take,
-    //   skip,
-    //   orderBy: {
-    //     [sortBy]: sortOrder,
-    //   },
-    // });
 
     const [total, posts] = await Promise.all([
       prisma.post.count({
