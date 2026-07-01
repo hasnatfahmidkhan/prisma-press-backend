@@ -36,7 +36,6 @@ class PostController {
   // my posts
   myPosts = catchAsync(async (req: Req, res: Res, next: NextFunction) => {
     const id = req.user?.id as string;
-    console.log(id, "ID");
     const posts = await postService.getMyPosts(id);
     sendResponse(res, {
       succces: true,

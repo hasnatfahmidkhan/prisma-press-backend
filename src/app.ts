@@ -1,12 +1,14 @@
+import cookieParser from "cookie-parser";
+import cors from "cors";
 import type { Application, Request, Response } from "express";
 import express from "express";
-import cors from "cors";
 import config from "./config";
-import cookieParser from "cookie-parser";
-import { userRouter } from "./modules/user/user.route";
+import globalErrorHandler from "./middlewares/globalErrorHandler";
+import notFound from "./middlewares/notFound";
 import { authRoutes } from "./modules/auth/auth.route";
-import { postRoutes } from "./modules/post/post.route";
 import { commentRoutes } from "./modules/comment/comment.route";
+import { postRoutes } from "./modules/post/post.route";
+import { userRouter } from "./modules/user/user.route";
 
 const app: Application = express();
 
@@ -37,5 +39,11 @@ app.use("/api/posts", postRoutes);
 
 // comment api
 app.use("/api/comments", commentRoutes);
+
+// not found middleware
+app.use(notFound);
+
+// global error handler
+app.use(globalErrorHandler);
 
 export default app;

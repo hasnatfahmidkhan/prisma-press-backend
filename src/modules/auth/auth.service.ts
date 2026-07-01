@@ -1,18 +1,18 @@
 import bcrypt from "bcryptjs";
-import { prisma } from "../../lib/prisma";
-import type { ILoginPayload } from "./auth.interface";
-import { jwtUtils } from "../../utils/jwt";
-import config from "../../config";
 import type { JwtPayload, SignOptions } from "jsonwebtoken";
+import config from "../../config";
+import { prisma } from "../../lib/prisma";
+import { jwtUtils } from "../../utils/jwt";
+import type { ILoginPayload } from "./auth.interface";
 
 const loginUser = async (payload: ILoginPayload) => {
   const { email, password } = payload;
-  if (!email || !password) {
-    throw new Error("Please Provide Email & password");
-  }
+  // if (!email || !password) {
+  //   throw new Error("Please Provide Email & password");
+  // }
 
   //   is the user exists
-  const user = await prisma.user.findFirstOrThrow({
+  const user = await prisma.user.findUniqueOrThrow({
     where: {
       email,
     },
