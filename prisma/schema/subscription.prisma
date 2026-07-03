@@ -9,8 +9,11 @@ model Subscription {
 
     // stript related ids 
     // stripe customer id
+    stripeCustomerId String @unique
     // stripe subscription id
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
+
+    @@map("subscriptions")
 }

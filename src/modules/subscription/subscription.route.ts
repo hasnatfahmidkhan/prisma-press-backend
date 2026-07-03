@@ -8,7 +8,7 @@ const router = Router();
 router.post(
   "/checkout",
   auth(Role.ADMIN, Role.AUTHOR, Role.USER),
-  commentController.checkout,
+  commentController.createCheckoutSession,
 );
 
 export const subscriptionRoutes = router;
