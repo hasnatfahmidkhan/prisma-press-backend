@@ -8,6 +8,7 @@ import notFound from "./middlewares/notFound";
 import { authRoutes } from "./modules/auth/auth.route";
 import { commentRoutes } from "./modules/comment/comment.route";
 import { postRoutes } from "./modules/post/post.route";
+import { subscriptionRoutes } from "./modules/subscription/subscription.route";
 import { userRouter } from "./modules/user/user.route";
 
 const app: Application = express();
@@ -39,6 +40,9 @@ app.use("/api/posts", postRoutes);
 
 // comment api
 app.use("/api/comments", commentRoutes);
+
+// subscription
+app.use("/api/subscription", subscriptionRoutes);
 
 // not found middleware
 app.use(notFound);
