@@ -13,4 +13,17 @@ router.post(
 
 router.post("/webhook", subcriptionController.handleWebhook);
 
+router.get(
+  "/sub-status/:userId",
+  auth(Role.ADMIN, Role.AUTHOR, Role.USER),
+  subcriptionController.getSubcriptionStatus,
+);
+
+// In subscription.route.ts or matching router
+router.post(
+  "/cancel",
+  auth(Role.ADMIN, Role.AUTHOR, Role.USER),
+  subcriptionController.cancelSubscription,
+);
+
 export const subscriptionRoutes = router;

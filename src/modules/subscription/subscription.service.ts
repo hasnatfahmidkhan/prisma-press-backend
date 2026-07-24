@@ -1,4 +1,5 @@
 import Stripe from "stripe";
+import { subscriptionStatus } from "../../../generated/prisma/enums";
 import config from "../../config";
 import { prisma } from "../../lib/prisma";
 import { stripe } from "../../lib/stripe";
@@ -70,10 +71,12 @@ class Subscription {
 
       // Occurs whenever a subscription changes (e.g., switching from one plan to another, or changing the status from trial to active).
       case "customer.subscription.updated":
+        await handleChangeSubscription(event.data.object);
         break;
 
       // Occurs whenever a customer’s subscription ends.
       case "customer.subscription.deleted":
+        await handleChangeSubscription(event.data.object);
         break;
 
       default:
@@ -81,6 +84,48 @@ class Subscription {
         console.log(`No event matched. Unhandled event type ${event.type}.`);
         break;
     }
+  };
+
+  getSubcriptionStatus = async (userId: string) => {
+    const isSubcriptionExists = await prisma.subscription.findUniqueOrThrow({
+      where: {
+        userId,
+      },
+    });
+    console.log(isSubcriptionExists);
+
+    const isActive =
+      isSubcriptionExists.status === "ACTIVE" &&
+      isSubcriptionExists.currentPeriodEnd &&
+      new Date(isSubcriptionExists.currentPeriodEnd) > new Date();
+
+    return {
+      status: isSubcriptionExists.status,
+      isSubcribed: isActive,
+      currentPeriodEnd: isSubcriptionExists.currentPeriodEnd,
+    };
+  };
+
+  // Inside your Subscription class in subscription.service.ts
+  cancelSubscription = async (userId: string) => {
+    // 1. Prothome user-er corresponding record khujun
+    const subscription = await prisma.subscription.findUnique({
+      where: { userId },
+    });
+
+    if (!subscription) {
+      throw new Error("Subscription not found please subscribe!");
+    }
+
+    if (!subscription.stripeSubscriptionId) {
+      throw new Error("No active Stripe subscription found for this user");
+    }
+
+    // 2. Stripe API theke subscription cancel korun
+    const cancelledSub = await stripe.subscriptions.cancel(
+      subscription.stripeSubscriptionId,
+    );
+    return cancelledSub;
   };
 }
 
@@ -122,6 +167,43 @@ const handleCheckoutCompleted = async (session: Stripe.Checkout.Session) => {
       stripeSubscriptionId,
       currentPeriodEnd,
       status: "ACTIVE",
+    },
+  });
+};
+
+const handleChangeSubscription = async (payload: Stripe.Subscription) => {
+  const stripeSubscriptionId = payload.id;
+
+  const status =
+    payload.status === "active" || payload.status === "trialing"
+      ? subscriptionStatus.ACTIVE
+      : payload.status === "canceled"
+        ? subscriptionStatus.CANCELLED
+        : subscriptionStatus.EXPIRED;
+
+  const currentPeriodEnd = getPeriodEnd(payload);
+
+  const isSubscriptionExist = await prisma.subscription.findUnique({
+    where: {
+      stripeSubscriptionId,
+    },
+  });
+
+  if (!isSubscriptionExist) {
+    console.log(
+      `Webhook : No Subscription found for subscription id : ${stripeSubscriptionId}`,
+    );
+
+    return;
+  }
+
+  await prisma.subscription.update({
+    where: {
+      stripeSubscriptionId,
+    },
+    data: {
+      status,
+      currentPeriodEnd,
     },
   });
 };

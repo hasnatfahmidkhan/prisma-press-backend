@@ -32,6 +32,36 @@ class SubcriptionContoller {
       data: null,
     });
   });
+
+  getSubcriptionStatus = catchAsync(
+    async (req: Req, res: Res, next: NextFunction) => {
+      const userId = req.params.userId as string;
+
+      const status = await subscriptionService.getSubcriptionStatus(userId);
+      sendResponse(res, {
+        succces: true,
+        statusCode: httpStatus.OK,
+        message: "get status",
+        data: status,
+      });
+    },
+  );
+
+  // Inside your SubcriptionContoller class in subscription.controller.ts
+  cancelSubscription = catchAsync(
+    async (req: Req, res: Res, next: NextFunction) => {
+      const userId = req.user?.id as string; 
+
+      await subscriptionService.cancelSubscription(userId);
+
+      sendResponse(res, {
+        succces: true, 
+        statusCode: httpStatus.OK,
+        message: "Subscription cancelled successfully",
+        data: null,
+      });
+    },
+  );
 }
 
 export const subcriptionController = new SubcriptionContoller();

@@ -1,9 +1,9 @@
-import httpStatus from "http-status";
-import { postService } from "./post.service";
 import type { NextFunction } from "express";
+import httpStatus from "http-status";
 import type { Req, Res } from "../../types";
 import { catchAsync } from "../../utils/catchAsync";
 import { sendResponse } from "../../utils/sendResponse";
+import { postService } from "./post.service";
 
 class PostController {
   // create post
@@ -22,16 +22,19 @@ class PostController {
 
   // get all posts
   getAllPosts = catchAsync(async (req: Req, res: Res) => {
-  const result = await postService.getPostsFromDB(req.query);
+    const userId = req.user?.id;
 
-  sendResponse(res, {
-    succces: true,
-    statusCode: httpStatus.OK,
-    message: "Posts retrieved successfully",
-    data: result.posts,
-    pagination: result.pagination,
+    // 3. Query o userId pass korun service-e
+    const result = await postService.getPostsFromDB(req.query, userId);
+
+    sendResponse(res, {
+      succces: true,
+      statusCode: httpStatus.OK,
+      message: "Posts retrieved successfully",
+      data: result.posts,
+      pagination: result.pagination,
+    });
   });
-});
 
   // my posts
   myPosts = catchAsync(async (req: Req, res: Res, next: NextFunction) => {

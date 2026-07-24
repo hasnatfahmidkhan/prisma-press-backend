@@ -1,4 +1,7 @@
-import { CommentStatus } from "../../../generated/prisma/enums";
+import {
+  CommentStatus,
+  subscriptionStatus,
+} from "../../../generated/prisma/enums";
 import type { PostWhereInput } from "../../../generated/prisma/models";
 import { prisma } from "../../lib/prisma";
 import type {
@@ -9,6 +12,19 @@ import type {
 
 class PostService {
   insertPostIntoDB = async (payload: ICreatePostPayload, userId: string) => {
+    const subscription = await prisma.subscription.findUnique({
+      where: {
+        userId,
+      },
+    });
+
+    if (
+      subscription?.status !== subscriptionStatus.ACTIVE &&
+      payload.isPremium
+    ) {
+      throw new Error("only premium user create premium content");
+    }
+
     const post = await prisma.post.create({
       data: {
         ...payload,
@@ -19,7 +35,7 @@ class PostService {
     return post;
   };
 
-  getPostsFromDB = async (query: IGetPostsQuery) => {
+  getPostsFromDB = async (query: IGetPostsQuery, userId?: string) => {
     const {
       page = "1",
       limit = "10",
@@ -41,6 +57,24 @@ class PostService {
     const skip = (pageNumber - 1) * take;
 
     const where: PostWhereInput = {};
+
+    where.isPremium = false;
+
+    if (userId) {
+      const subscription = await prisma.subscription.findUnique({
+        where: {
+          userId,
+        },
+      });
+
+      if (
+        subscription &&
+        subscription.status === subscriptionStatus.ACTIVE &&
+        new Date(subscription.currentPeriodEnd) > new Date()
+      ) {
+        delete where.isPremium;
+      }
+    }
 
     // Search
     if (searchTerm) {
@@ -74,6 +108,7 @@ class PostService {
     }
 
     //? Filter
+    // where.isPremium = false;
 
     //authorId
     if (authorId) {
