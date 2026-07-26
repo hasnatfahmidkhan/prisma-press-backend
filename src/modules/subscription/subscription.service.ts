@@ -87,12 +87,15 @@ class Subscription {
   };
 
   getSubcriptionStatus = async (userId: string) => {
-    const isSubcriptionExists = await prisma.subscription.findUniqueOrThrow({
+    const isSubcriptionExists = await prisma.subscription.findUnique({
       where: {
         userId,
       },
     });
-    console.log(isSubcriptionExists);
+
+    if (!isSubcriptionExists) {
+      throw new Error("Subscription not found please subscribe");
+    }
 
     const isActive =
       isSubcriptionExists.status === "ACTIVE" &&

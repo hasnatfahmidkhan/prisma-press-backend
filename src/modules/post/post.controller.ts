@@ -26,13 +26,13 @@ class PostController {
 
     // 3. Query o userId pass korun service-e
     const result = await postService.getPostsFromDB(req.query, userId);
-
+   
     sendResponse(res, {
       succces: true,
       statusCode: httpStatus.OK,
       message: "Posts retrieved successfully",
       data: result.posts,
-      pagination: result.pagination,
+      meta: result.meta,
     });
   });
 

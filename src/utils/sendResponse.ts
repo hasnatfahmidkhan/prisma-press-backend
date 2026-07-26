@@ -5,7 +5,7 @@ interface IResponseData<T> {
   statusCode: number;
   message: string;
   data: T;
-  pagination?: {};
+  meta?: {};
 }
 
 export const sendResponse = <T>(res: Res, data: IResponseData<T>) => {
@@ -14,6 +14,6 @@ export const sendResponse = <T>(res: Res, data: IResponseData<T>) => {
     statusCode: data.statusCode,
     message: data.message,
     data: data.data,
-    pagination: data.pagination,  
+    meta: data.meta,
   });
 };

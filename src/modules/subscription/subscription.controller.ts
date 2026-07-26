@@ -35,7 +35,7 @@ class SubcriptionContoller {
 
   getSubcriptionStatus = catchAsync(
     async (req: Req, res: Res, next: NextFunction) => {
-      const userId = req.params.userId as string;
+      const userId = req.user?.id as string;
 
       const status = await subscriptionService.getSubcriptionStatus(userId);
       sendResponse(res, {
@@ -50,12 +50,12 @@ class SubcriptionContoller {
   // Inside your SubcriptionContoller class in subscription.controller.ts
   cancelSubscription = catchAsync(
     async (req: Req, res: Res, next: NextFunction) => {
-      const userId = req.user?.id as string; 
+      const userId = req.user?.id as string;
 
       await subscriptionService.cancelSubscription(userId);
 
       sendResponse(res, {
-        succces: true, 
+        succces: true,
         statusCode: httpStatus.OK,
         message: "Subscription cancelled successfully",
         data: null,

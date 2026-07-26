@@ -1,5 +1,6 @@
 import {
   CommentStatus,
+  PostStatus,
   subscriptionStatus,
 } from "../../../generated/prisma/enums";
 import type { PostWhereInput } from "../../../generated/prisma/models";
@@ -116,12 +117,14 @@ class PostService {
     }
 
     // status
+    where.status = PostStatus.PUBLISHED;
+
     if (status) {
       where.status = status;
     }
 
     // Featured
-    if (typeof isFeatured !== undefined) {
+    if (isFeatured === "true" || isFeatured === "false") {
       where.isFeatured = isFeatured === "true";
     }
 
@@ -187,11 +190,11 @@ class PostService {
 
     return {
       posts,
-      pagination: {
+      meta: {
         page: pageNumber,
         limit: take,
         total,
-        totalPage: Math.ceil(total / take),
+        totalPages: Math.ceil(total / take),
       },
     };
   };
@@ -214,6 +217,9 @@ class PostService {
             commments: true,
           },
         },
+      },
+      orderBy: {
+        createdAt: "desc",
       },
     });
 
@@ -269,7 +275,7 @@ class PostService {
           },
         },
       });
-      const post = await tx.post.findFirstOrThrow({
+      const post = await tx.post.findUniqueOrThrow({
         where: {
           id: postId,
         },

@@ -14,7 +14,7 @@ router.post(
 router.post("/webhook", subcriptionController.handleWebhook);
 
 router.get(
-  "/sub-status/:userId",
+  "/sub-status",
   auth(Role.ADMIN, Role.AUTHOR, Role.USER),
   subcriptionController.getSubcriptionStatus,
 );
