@@ -5,9 +5,9 @@
   "main": "index.js",
   "scripts": {
     "dev": "tsx watch src/index.ts",
-    "build": "tsup",
+    "build": "tsup && prisma generate",
     "start": "node ./dist/index.js",
-    "stripe:webhook": "stripe listen --forward-to localhost:5000/api/subscription/webhook"
+    "prisma:migrate": "prisma migrate deploy"
   },
   "keywords": [],
   "author": "",
