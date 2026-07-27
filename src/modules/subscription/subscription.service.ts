@@ -156,19 +156,19 @@ const handleCheckoutCompleted = async (session: Stripe.Checkout.Session) => {
 
   await prisma.subscription.upsert({
     where: {
-      id: userId,
+      userId,
     },
     create: {
       userId,
       stripeCustomerId,
       status: "ACTIVE",
       stripeSubscriptionId,
-      currentPeriodEnd,
+      currentPeriodEnd: currentPeriodEnd ?? new Date(),
     },
     update: {
       stripeCustomerId,
       stripeSubscriptionId,
-      currentPeriodEnd,
+      currentPeriodEnd: currentPeriodEnd ?? undefined,
       status: "ACTIVE",
     },
   });
@@ -176,6 +176,7 @@ const handleCheckoutCompleted = async (session: Stripe.Checkout.Session) => {
 
 const handleChangeSubscription = async (payload: Stripe.Subscription) => {
   const stripeSubscriptionId = payload.id;
+  console.log("payload from update subscription: ", payload);
 
   const status =
     payload.status === "active" || payload.status === "trialing"
